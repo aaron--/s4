@@ -1,5 +1,4 @@
-S4
-==
+# S4
 
 S4 is a block based Cocoa / Objective-C client that helps you make requests to Amazon Web Services S3, and supports these operations:
 - GET Service
@@ -22,30 +21,27 @@ Authorization is not managed for you beyond reporting errors when authorization 
 
 S4 requires the XMLElement library available at https://github.com/aaron--/xmlelement and must be compiled with XCode 4.2 for ARC support.
 
-S4Task
-------
+### S4Task
 
 S4Task represents a concurrent call to S3 and can be cancelled and observed for progress updates by using block properties. For example:
 
-task = [self.s4 getBuckets];
-task.onDone = ^(NSArray* buckets) {
-  self.buckets = buckets;
-};
-task.onError = ^(NSError* error) {
-  [self handleError:error];
-};
-
+    task = [self.s4 getBuckets];
+    task.onDone = ^(NSArray* buckets) {
+      self.buckets = buckets;
+    };
+    task.onError = ^(NSError* error) {
+      [self handleError:error];
+    };
+    
 Most S3 methods subclass S4Task with their own completion handler block format since data returned by different tasks varies.
 
 Callback blocks are deallocated after firing so circular references to objects captures by the block closure are release when the task is over.
 
-Status
-------
+### Status
 
 S4 is largely untested and shouldn't be relied on for production quality projects. It's been tested only lightly on iOS.
 
-Todo
-----
+### Todo
 
 - DELETE Object support
 - Better Documentation
