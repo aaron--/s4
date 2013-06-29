@@ -7,6 +7,9 @@
 #import "S4Task.h"
 #import "XMLElement.h"
 #import "S4.h"
+#if TARGET_OS_IPHONE
+#import <MobileCoreServices/MobileCoreServices.h>
+#endif
 
 static NSString*    kS3Endpoint = @"s3.amazonaws.com";
 
