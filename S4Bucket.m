@@ -5,7 +5,17 @@
 //
 
 #import "S4Bucket.h"
-#import "S4Op.h"
+#import "S4.h"
+
+@interface S4Task (Internal)
++ (instancetype)taskWithMethod:(NSString*)method
+                        bucket:(NSString*)bucket
+                           uri:(NSString*)uri
+                          data:(NSData*)data
+                           key:(NSString*)key
+                        secret:(NSString*)secret
+                      delegate:(id)delegate;
+@end
 
 @interface S4Bucket ()
 @property (readwrite) S4*         s4;
@@ -29,56 +39,67 @@
 
 #pragma mark -
 
-- (void)get:(NSString*)uri whenDone:(S4BucketGetDone)block
+- (S4GetTask*)get:(NSString*)uri
 {
-  S4OpDone   opDone;
-  S4Op*      newOp;
-  
-  opDone = ^(S4Op* op, NSError* error){ block(op.data, error); };
-  newOp = [S4Op opWithMethod:@"GET" s4:self.s4 bucket:self uri:uri data:nil whenDone:opDone];
+  return [S4GetTask taskWithMethod:@"GET"
+                            bucket:self.name
+                               uri:uri
+                              data:nil
+                               key:self.s4.key
+                            secret:self.s4.secret
+                          delegate:self.s4];
 }
 
-- (void)head:(NSString*)uri whenDone:(S4BucketHeadDone)block
+- (S4HeadTask*)head:(NSString*)uri
 {
-  S4OpDone  opDone;
-  S4Op*     newOp;
-  
-  // TODO: Make sure error is used for all non-20* HTTP statuses
-  opDone = ^(S4Op* op, NSError* error){ block(op.head, error); };
-  newOp = [S4Op opWithMethod:@"HEAD" s4:self.s4 bucket:self uri:uri data:nil whenDone:opDone];
+  return [S4HeadTask taskWithMethod:@"HEAD"
+                             bucket:self.name
+                                uri:uri
+                               data:nil
+                                key:self.s4.key
+                             secret:self.s4.secret
+                           delegate:self.s4];
 }
 
-- (void)list:(NSString*)prefix whenDone:(S4BucketListDone)block
+- (S4ListTask*)list:(NSString*)prefix
 {
   NSString*   uri;
-  S4OpDone    opDone;
-  S4Op*       newOp;
-  
+
   uri = @"?delimiter=/";
   uri = prefix ? [NSString stringWithFormat:@"?prefix=%@&delimiter=/", prefix] : uri;
-  opDone = ^(S4Op* op, NSError* error){ block(op.list, error); };
-  newOp = [S4Op opWithMethod:@"GET" s4:self.s4 bucket:self uri:uri data:nil whenDone:opDone];
+  return [S4ListTask taskWithMethod:@"GET"
+                             bucket:self.name
+                                uri:uri
+                               data:nil
+                                key:self.s4.key
+                             secret:self.s4.secret
+                           delegate:self.s4];
 }
 
-- (void)listDeep:(NSString*)prefix whenDone:(S4BucketListDone)block
+- (S4ListTask*)listDeep:(NSString*)prefix
 {
   NSString*   uri;
-  S4OpDone    opDone;
-  S4Op*       newOp;
   
   // TODO: sanity check prefix
   uri = [NSString stringWithFormat:@"?prefix=%@", prefix];
-  opDone = ^(S4Op* op, NSError* error){ block(op.list, error); };
-  newOp = [S4Op opWithMethod:@"GET" s4:self.s4 bucket:self uri:uri data:nil whenDone:opDone];
+  return [S4ListTask taskWithMethod:@"GET"
+                             bucket:self.name
+                                uri:uri
+                               data:nil
+                                key:self.s4.key
+                             secret:self.s4.secret
+                           delegate:self.s4];
 }
 
-- (void)put:(NSString*)uri data:(NSData*)data whenDone:(S4BucketPutDone)block
+- (S4PutTask*)put:(NSString*)uri data:(NSData*)data
 {
-  S4OpDone    opDone;
-  S4Op*       newOp;
-  
-  opDone = ^(S4Op* op, NSError* error){ block(error); };
-  newOp = [S4Op opWithMethod:@"PUT" s4:self.s4 bucket:self uri:uri data:data whenDone:opDone];
+  return [S4PutTask taskWithMethod:@"PUT"
+                            bucket:self.name
+                               uri:uri
+                              data:data
+                               key:self.s4.key
+                            secret:self.s4.secret
+                          delegate:self.s4];
 }
 
 @end
